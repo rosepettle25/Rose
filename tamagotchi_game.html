@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tamagotchi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 350px;
+            height: 600px;
+            background: #2a2a2a;
+            border: 8px solid #444;
+            border-radius: 25px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .screen {
+            width: 300px;
+            height: 400px;
+            background: #87ceeb;
+            margin: 25px auto 20px;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #333;
+        }
+
+        .pet {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .pet.happy { animation: bounce 1s infinite; }
+        .pet.sad { opacity: 0.6; filter: grayscale(50%); }
+        .pet.sleeping { animation: sleep 2s infinite; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        @keyframes sleep {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.4; }
+        }
+
+        .stats {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 3px;
+            font-size: 10px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.8);
+            padding: 3px 5px;
+            border-radius: 8px;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .stat-bar {
+            width: 100%;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            margin-top: 2px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .hunger-fill { background: #ff6b6b; }
+        .happiness-fill { background: #4ecdc4; }
+        .energy-fill { background: #45b7d1; }
+        .cleanliness-fill { background: #95e1d3; }
+        .health-fill { background: #f38ba8; }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 4px;
+            padding: 0 20px;
+            margin-top: 6px;
+        }
+
+        .btn {
+            padding: 6px 8px;
+            border: none;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .feed-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+        }
+
+        .play-btn {
+            background: linear-gradient(45deg, #4ecdc4, #6ee6de);
+            color: white;
+        }
+
+        .sleep-btn {
+            background: linear-gradient(45deg, #45b7d1, #6cc5e8);
+            color: white;
+        }
+
+        .clean-btn {
+            background: linear-gradient(45deg, #95e1d3, #b3ead5);
+            color: white;
+        }
+
+        .medicine-btn {
+            background: linear-gradient(45deg, #f38ba8, #f5a3c7);
+            color: white;
+        }
+
+        .snack-btn {
+            background: linear-gradient(45deg, #fbb3e0, #fcc5e8);
+            color: white;
+        }
+
+        .status {
+            text-align: center;
+            margin: 10px 0 8px 0;
+            font-size: 14px;
+            color: white;
+            font-weight: bold;
+            min-height: 20px;
+        }
+
+        .clouds {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50px;
+            opacity: 0.7;
+            animation: float 10s infinite linear;
+        }
+
+        .cloud1 { width: 60px; height: 20px; top: 20%; animation-delay: 0s; }
+        .cloud2 { width: 40px; height: 15px; top: 30%; animation-delay: -3s; }
+        .cloud3 { width: 50px; height: 18px; top: 40%; animation-delay: -6s; }
+
+        @keyframes float {
+            0% { left: -70px; }
+            100% { left: 320px; }
+        }
+
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: sparkle 1s ease-out forwards;
+        }
+
+        @keyframes sparkle {
+            0% {
+                opacity: 1;
+                transform: scale(0) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1) rotate(180deg);
+            }
+        }
+
+        .age-display {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.8);
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 400px) {
+            .game-container {
+                width: 320px;
+                height: 550px;
+            }
+            
+            .screen {
+                width: 270px;
+                height: 350px;
+            }
+            
+            .pet {
+                font-size: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="screen">
+            <div class="clouds">
+                <div class="cloud cloud1"></div>
+                <div class="cloud cloud2"></div>
+                <div class="cloud cloud3"></div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div>Hunger</div>
+                    <div class="stat-bar">
+                        <div class="stat-fill hunger-fill" id="hungerBar"></div>
+                    </div>
+                </div>
+                <div class="stat">
+                    <div>Happy</div>
+                    <div class="stat-bar">
+                        <div class="stat-fill happiness-fill" id="happinessBar"></div>
+                    </div>
+                </div>
+                <div class="stat">
+                    <div>Energy</div>
+                    <div class="stat-bar">
+                        <div class="stat-fill energy-fill" id="energyBar"></div>
+                    </div>
+                </div>
+                <div class="stat">
+                    <div>Clean</div>
+                    <div class="stat-bar">
+                        <div class="stat-fill cleanliness-fill" id="cleanlinessBar"></div>
+                    </div>
+                </div>
+                <div class="stat">
+                    <div>Health</div>
+                    <div class="stat-bar">
+                        <div class="stat-fill health-fill" id="healthBar"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pet" id="pet">🐣</div>
+            
+            <div class="age-display" id="ageDisplay">Age: 0</div>
+            
+            <div class="particles" id="particles"></div>
+        </div>
+        
+        <div class="status" id="status">Your pet is happy!</div>
+        
+        <div class="controls">
+            <button class="btn feed-btn" id="feedBtn">🍎 Feed</button>
+            <button class="btn play-btn" id="playBtn">🎾 Play</button>
+            <button class="btn sleep-btn" id="sleepBtn">😴 Sleep</button>
+            <button class="btn clean-btn" id="cleanBtn">🧽 Clean</button>
+            <button class="btn medicine-btn" id="medicineBtn">💊 Med</button>
+            <button class="btn snack-btn" id="snackBtn">🍭 Snack</button>
+        </div>
+    </div>
+
+    <script>
+        class Tamagotchi {
+            constructor() {
+                this.stats = {
+                    hunger: 80,
+                    happiness: 80,
+                    energy: 80,
+                    cleanliness: 80,
+                    health: 80
+                };
+                this.age = 0;
+                this.isAlive = true;
+                this.isSleeping = false;
+                this.isSick = false;
+                this.isDirty = false;
+                this.lastPoopTime = 0;
+                this.poopCount = 0;
+                this.petElement = document.getElementById('pet');
+                this.statusElement = document.getElementById('status');
+                
+                this.petStages = ['🐣', '🐤', '🐥', '🐓'];
+                this.currentStage = 0;
+                
+                this.init();
+            }
+            
+            init() {
+                this.updateDisplay();
+                this.bindEvents();
+                this.startGameLoop();
+                this.playSound('birth');
+            }
+            
+            bindEvents() {
+                document.getElementById('feedBtn').addEventListener('click', () => this.feed());
+                document.getElementById('playBtn').addEventListener('click', () => this.play());
+                document.getElementById('sleepBtn').addEventListener('click', () => this.sleep());
+                document.getElementById('cleanBtn').addEventListener('click', () => this.clean());
+                document.getElementById('medicineBtn').addEventListener('click', () => this.giveMedicine());
+                document.getElementById('snackBtn').addEventListener('click', () => this.giveSnack());
+                this.petElement.addEventListener('click', () => this.petPet());
+            }
+            
+            feed() {
+                if (!this.isAlive || this.isSleeping) return;
+                
+                this.stats.hunger = Math.min(100, this.stats.hunger + 25);
+                this.stats.happiness = Math.min(100, this.stats.happiness + 10);
+                this.stats.energy = Math.max(0, this.stats.energy - 5);
+                
+                this.updateDisplay();
+                this.showParticles();
+                this.playSound('eat');
+                this.setStatus('Nom nom nom!');
+            }
+            
+            play() {
+                if (!this.isAlive || this.isSleeping) return;
+                
+                var self = this;
+                this.stats.happiness = Math.min(100, this.stats.happiness + 30);
+                this.stats.energy = Math.max(0, this.stats.energy - 15);
+                this.stats.hunger = Math.max(0, this.stats.hunger - 10);
+                
+                this.updateDisplay();
+                this.showParticles();
+                this.playSound('play');
+                this.setStatus('Wheee! So fun!');
+                
+                this.petElement.style.animation = 'bounce 0.5s ease-out 3';
+                setTimeout(function() {
+                    self.petElement.style.animation = '';
+                }, 1500);
+            }
+            
+            sleep() {
+                if (!this.isAlive) return;
+                
+                this.isSleeping = !this.isSleeping;
+                
+                if (this.isSleeping) {
+                    this.petElement.classList.add('sleeping');
+                    this.setStatus('Zzz... sleeping');
+                    this.playSound('sleep');
+                } else {
+                    this.petElement.classList.remove('sleeping');
+                    this.setStatus('Good morning!');
+                    this.playSound('wake');
+                }
+                
+                this.updateDisplay();
+            }
+            
+            clean() {
+                if (!this.isAlive || this.isSleeping) return;
+                
+                // Always clean regardless of current state
+                this.removePoop();
+                this.stats.cleanliness = 100;
+                this.stats.happiness = Math.min(100, this.stats.happiness + 15);
+                this.isDirty = false;
+                this.poopCount = 0;
+                
+                // If pet was sick from being dirty, cure them
+                if (this.isSick && this.stats.cleanliness > 50) {
+                    this.isSick = false;
+                    this.stats.health = Math.min(100, this.stats.health + 20);
+                }
+                
+                this.updateDisplay();
+                this.showParticles();
+                this.playSound('clean');
+                this.setStatus('Sparkly clean! Much better!');
+            }
+            
+            giveMedicine() {
+                if (!this.isAlive || this.isSleeping) return;
+                
+                this.stats.health = 100;
+                this.stats.happiness = Math.max(0, this.stats.happiness - 10);
+                this.isSick = false;
+                
+                this.updateDisplay();
+                this.playSound('medicine');
+                this.setStatus('Medicine tastes yucky but I feel better!');
+            }
+            
+            giveSnack() {
+                if (!this.isAlive || this.isSleeping) return;
+                
+                this.stats.happiness = Math.min(100, this.stats.happiness + 20);
+                this.stats.hunger = Math.min(100, this.stats.hunger + 10);
+                this.stats.energy = Math.max(0, this.stats.energy - 3);
+                
+                this.updateDisplay();
+                this.showParticles();
+                this.playSound('snack');
+                this.setStatus('Sweet treat! So delicious!');
+            }
+            
+            petPet() {
+                if (!this.isAlive || this.isSleeping) return;
+                
+                this.stats.happiness = Math.min(100, this.stats.happiness + 5);
+                this.showParticles();
+                this.playSound('pet');
+                this.setStatus('Aww, that feels nice!');
+                this.updateDisplay();
+            }
+            
+            updateDisplay() {
+                document.getElementById('hungerBar').style.width = this.stats.hunger + '%';
+                document.getElementById('happinessBar').style.width = this.stats.happiness + '%';
+                document.getElementById('energyBar').style.width = this.stats.energy + '%';
+                document.getElementById('cleanlinessBar').style.width = this.stats.cleanliness + '%';
+                document.getElementById('healthBar').style.width = this.stats.health + '%';
+                
+                document.getElementById('ageDisplay').textContent = 'Age: ' + this.age;
+                
+                this.petElement.className = 'pet';
+                
+                if (!this.isAlive) {
+                    this.petElement.textContent = '💀';
+                    this.petElement.classList.add('sad');
+                } else if (this.isSleeping) {
+                    this.petElement.textContent = this.petStages[this.currentStage];
+                    this.petElement.classList.add('sleeping');
+                } else if (this.isSick) {
+                    this.petElement.textContent = this.petStages[this.currentStage];
+                    this.petElement.classList.add('sad');
+                } else if (this.isDirty) {
+                    this.petElement.textContent = this.petStages[this.currentStage];
+                    this.petElement.classList.add('sad');
+                } else if (this.stats.happiness > 70) {
+                    this.petElement.textContent = this.petStages[this.currentStage];
+                    this.petElement.classList.add('happy');
+                } else if (this.stats.happiness < 30 || this.stats.hunger < 30 || this.stats.energy < 30) {
+                    this.petElement.textContent = this.petStages[this.currentStage];
+                    this.petElement.classList.add('sad');
+                } else {
+                    this.petElement.textContent = this.petStages[this.currentStage];
+                }
+                
+                this.checkEvolution();
+            }
+            
+            checkEvolution() {
+                var newStage = Math.min(3, Math.floor(this.age / 10));
+                if (newStage !== this.currentStage) {
+                    this.currentStage = newStage;
+                    this.petElement.textContent = this.petStages[this.currentStage];
+                    this.playSound('evolve');
+                    this.setStatus('Your pet evolved!');
+                    this.showParticles();
+                }
+            }
+            
+            createPoop() {
+                if (this.poopCount < 3) {
+                    var poop = document.createElement('div');
+                    poop.textContent = '💩';
+                    poop.style.position = 'absolute';
+                    poop.style.fontSize = '20px';
+                    poop.style.left = (Math.random() * 250 + 25) + 'px';
+                    poop.style.bottom = '10px';
+                    poop.className = 'poop';
+                    document.querySelector('.screen').appendChild(poop);
+                    this.poopCount++;
+                    this.isDirty = true;
+                    this.stats.cleanliness = Math.max(0, this.stats.cleanliness - 20);
+                }
+            }
+            
+            removePoop() {
+                var poops = document.querySelectorAll('.poop');
+                for (var i = 0; i < poops.length; i++) {
+                    if (poops[i] && poops[i].parentNode) {
+                        poops[i].remove();
+                    }
+                }
+                this.poopCount = 0;
+                this.isDirty = false;
+            }
+            
+            showParticles() {
+                var particles = document.getElementById('particles');
+                var self = this;
+                for (var i = 0; i < 6; i++) {
+                    (function(index) {
+                        setTimeout(function() {
+                            var particle = document.createElement('div');
+                            particle.className = 'particle';
+                            particle.style.left = (Math.random() * 280 + 10) + 'px';
+                            particle.style.top = (Math.random() * 380 + 10) + 'px';
+                            particles.appendChild(particle);
+                            
+                            setTimeout(function() {
+                                if (particle.parentNode) {
+                                    particle.remove();
+                                }
+                            }, 1000);
+                        }, index * 100);
+                    })(i);
+                }
+            }
+            
+            setStatus(message) {
+                var self = this;
+                this.statusElement.textContent = message;
+                setTimeout(function() {
+                    if (self.isAlive) {
+                        self.statusElement.textContent = self.getRandomStatus();
+                    } else {
+                        self.statusElement.textContent = 'Game Over';
+                    }
+                }, 3000);
+            }
+            
+            getRandomStatus() {
+                var statuses = [
+                    'Your pet is content',
+                    'Looking around curiously',
+                    'Feeling playful today!',
+                    'Enjoying the sunshine'
+                ];
+                return statuses[Math.floor(Math.random() * statuses.length)];
+            }
+            
+            startGameLoop() {
+                var self = this;
+                setInterval(function() {
+                    if (!self.isAlive) return;
+                    
+                    if (self.isSleeping) {
+                        self.stats.energy = Math.min(100, self.stats.energy + 5);
+                    } else {
+                        self.stats.hunger = Math.max(0, self.stats.hunger - 2);
+                        self.stats.happiness = Math.max(0, self.stats.happiness - 1);
+                        self.stats.energy = Math.max(0, self.stats.energy - 1);
+                        self.stats.cleanliness = Math.max(0, self.stats.cleanliness - 1);
+                        
+                        if (Math.random() < 0.05) {
+                            self.createPoop();
+                            self.playSound('poop');
+                        }
+                        
+                        if (Math.random() < 0.02 && self.stats.cleanliness < 30) {
+                            self.isSick = true;
+                            self.stats.health = Math.max(0, self.stats.health - 10);
+                            self.setStatus('Pet is not feeling well...');
+                        }
+                    }
+                    
+                    if (self.stats.hunger === 0 || self.stats.happiness === 0 || self.stats.health === 0) {
+                        self.isAlive = false;
+                        self.playSound('death');
+                        self.setStatus('Oh no! Your pet passed away');
+                    }
+                    
+                    self.updateDisplay();
+                }, 3000);
+                
+                setInterval(function() {
+                    if (self.isAlive) {
+                        self.age++;
+                        self.updateDisplay();
+                    }
+                }, 10000);
+            }
+            
+            playSound(type) {
+                try {
+                    var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    var sounds = {
+                        eat: { freq: 800, duration: 200 },
+                        play: { freq: 600, duration: 300 },
+                        sleep: { freq: 300, duration: 500 },
+                        wake: { freq: 500, duration: 200 },
+                        pet: { freq: 400, duration: 150 },
+                        birth: { freq: 700, duration: 400 },
+                        evolve: { freq: 900, duration: 600 },
+                        death: { freq: 200, duration: 800 },
+                        clean: { freq: 750, duration: 300 },
+                        medicine: { freq: 350, duration: 400 },
+                        snack: { freq: 650, duration: 250 },
+                        poop: { freq: 250, duration: 300 }
+                    };
+                    
+                    var sound = sounds[type];
+                    if (!sound) return;
+                    
+                    var oscillator = audioContext.createOscillator();
+                    var gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(sound.freq, audioContext.currentTime);
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.duration / 1000);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + sound.duration / 1000);
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+        }
+        
+        window.addEventListener('load', function() {
+            new Tamagotchi();
+        });
+        
+        var lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            var now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Fashion Designer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            0% { 
+                transform: translateY(100vh) rotate(0deg); 
+                opacity: 0; 
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { 
+                transform: translateY(-10vh) rotate(360deg); 
+                opacity: 0; 
+            }
+        }
+
+        .game-container {
+            position: relative;
+            z-index: 2;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 15px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            font-weight: 700;
+            background: linear-gradient(45deg, #fff, #f8f9fa, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            margin-bottom: 15px;
+            animation: titlePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 12px;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 1.4em;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .runway {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 16px 64px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .runway::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        .runway::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(0,0,0,0.05) 0px,
+                    rgba(0,0,0,0.05) 2px,
+                    transparent 2px,
+                    transparent 12px
+                );
+            opacity: 0.3;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .model {
+            width: 220px;
+            height: 320px;
+            margin: 0 auto;
+            position: relative;
+            background: linear-gradient(180deg, #fdbcb4, #f8a5a0);
+            border-radius: 120px 120px 30px 30px;
+            box-shadow: 
+                inset 0 0 30px rgba(0,0,0,0.1),
+                0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+
+        .model::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 40%, rgba(255,255,255,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(255,255,255,0.2) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .model.pose-change {
+            transform: rotate(-2deg) scale(1.02);
+        }
+
+        .model-head {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(145deg, #fdbcb4, #f5a195);
+            border-radius: 50%;
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 
+                0 6px 20px rgba(0,0,0,0.25),
+                inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+
+        .face {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 28px;
+            transition: all 0.3s ease;
+        }
+
+        .clothing-layer {
+            position: absolute;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 15px;
+            opacity: 0;
+            transform: scale(0.8);
+            border: 2px solid rgba(255,255,255,0.4);
+            backdrop-filter: blur(2px);
+        }
+
+        .clothing-layer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+            animation: fabricShine 4s infinite;
+            border-radius: inherit;
+        }
+
+        @keyframes fabricShine {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .clothing-layer.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .top-layer {
+            top: 25px;
+            left: 25px;
+            right: 25px;
+            height: 95px;
+            box-shadow: 
+                0 4px 15px rgba(0,0,0,0.2),
+                inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+
+        .bottom-layer {
+            bottom: 25px;
+            left: 25px;
+            right: 25px;
+            height: 120px;
+            box-shadow: 
+                0 4px 15px rgba(0,0,0,0.2),
+                inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+
+        .shoes-layer {
+            bottom: -10px;
+            left: 40px;
+            right: 40px;
+            height: 40px;
+            box-shadow: 
+                0 4px 15px rgba(0,0,0,0.3),
+                inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+
+        .accessory-layer {
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 35px;
+            box-shadow: 
+                0 4px 15px rgba(0,0,0,0.2),
+                inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+
+        .jewelry-layer {
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 20px;
+            border-radius: 50px;
+            box-shadow: 
+                0 4px 15px rgba(0,0,0,0.2),
+                inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+
+        .category-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .category-toggle {
+            color: white;
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+
+        .category-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));
+            gap: 12px;
+            max-height: 200px;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .items-grid.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        .item-btn {
+            position: relative;
+            width: 85px;
+            height: 70px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 
+                0 6px 20px rgba(0,0,0,0.25),
+                inset 0 2px 4px rgba(255,255,255,0.3);
+            font-size: 0.75em;
+            font-weight: 600;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .item-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            transition: left 0.6s;
+        }
+
+        .item-btn::after {
+            content: '✨';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 12px;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .item-btn:hover::after {
+            opacity: 1;
+            transform: rotate(180deg) scale(1.2);
+        }
+
+        .item-btn:hover::before {
+            left: 100%;
+        }
+
+        .item-btn:hover {
+            transform: translateY(-4px) scale(1.08);
+            box-shadow: 
+                0 12px 35px rgba(0,0,0,0.35),
+                inset 0 2px 4px rgba(255,255,255,0.4);
+        }
+
+        .item-btn:active {
+            transform: scale(0.95);
+        }
+
+        .item-btn.selected {
+            border-color: #fff;
+            box-shadow: 
+                0 0 0 3px rgba(255,255,255,0.5),
+                0 12px 35px rgba(0,0,0,0.35);
+            transform: scale(1.1);
+        }
+
+        .action-panel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .action-btn {
+            padding: 16px;
+            border: none;
+            border-radius: 18px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transition: all 0.5s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .action-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .random-btn {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            color: #333;
+            grid-column: 1 / -1;
+        }
+
+        .challenge-btn {
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            color: #333;
+            grid-column: 1 / -1;
+            margin-top: 10px;
+        }
+
+        .controls {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            width: 55px;
+            height: 55px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            font-size: 1.6em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .control-btn:hover {
+            transform: scale(1.15);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .challenge-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .challenge-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 350px;
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .challenge-modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .challenge-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .challenge-description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .combo-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .combo-indicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 480px) {
+            .game-container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .items-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            
+            .item-btn {
+                width: 75px;
+                height: 60px;
+                font-size: 0.7em;
+            }
+            
+            .model {
+                width: 200px;
+                height: 290px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="controls">
+        <button class="control-btn" id="soundToggle">🔊</button>
+        <button class="control-btn" id="themeToggle">🎨</button>
+    </div>
+    
+    <div class="game-container">
+        <div class="header">
+            <h1>✨ ULTIMATE FASHION ✨</h1>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-value" id="score">0</span>
+                    <span class="stat-label">Style Points</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="level">1</span>
+                    <span class="stat-label">Level</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="combos">0</span>
+                    <span class="stat-label">Combos</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="runway">
+            <div class="combo-indicator" id="comboIndicator">COMBO x2!</div>
+            <div class="model" id="model">
+                <div class="model-head">
+                    <div class="face" id="modelFace">😊</div>
+                </div>
+                <div class="clothing-layer top-layer" id="topLayer"></div>
+                <div class="clothing-layer bottom-layer" id="bottomLayer"></div>
+                <div class="clothing-layer shoes-layer" id="shoesLayer"></div>
+                <div class="clothing-layer accessory-layer" id="accessoryLayer"></div>
+                <div class="clothing-layer jewelry-layer" id="jewelryLayer"></div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header" data-category="tops">
+                <span class="category-title">👚 Designer Tops</span>
+                <span class="category-toggle">▼</span>
+            </div>
+            <div class="items-grid" id="topsGrid">
+                <button class="item-btn" style="background: linear-gradient(45deg, #ff9a9e, #fecfef);" data-type="top" data-item="0">Silk Blouse</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #a8edea, #fed6e3);" data-type="top" data-item="1">Cashmere Top</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #d299c2, #fef9d7);" data-type="top" data-item="2">Velvet Shirt</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #89f7fe, #66a6ff);" data-type="top" data-item="3">Satin Blouse</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #ffeaa7, #fab1a0);" data-type="top" data-item="4">Lace Top</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #fd79a8, #fdcb6e);" data-type="top" data-item="5">Crop Top</button>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header" data-category="bottoms">
+                <span class="category-title">👖 Premium Bottoms</span>
+                <span class="category-toggle">▼</span>
+            </div>
+            <div class="items-grid" id="bottomsGrid">
+                <button class="item-btn" style="background: linear-gradient(45deg, #667eea, #764ba2);" data-type="bottom" data-item="0">Designer Jeans</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #f093fb, #f5576c);" data-type="bottom" data-item="1">Silk Skirt</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #4facfe, #00f2fe);" data-type="bottom" data-item="2">Linen Shorts</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #43e97b, #38f9d7);" data-type="bottom" data-item="3">Palazzo Pants</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #fa709a, #fee140);" data-type="bottom" data-item="4">Midi Dress</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #a29bfe, #6c5ce7);" data-type="bottom" data-item="5">Leather Pants</button>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header" data-category="shoes">
+                <span class="category-title">👠 Luxury Shoes</span>
+                <span class="category-toggle">▼</span>
+            </div>
+            <div class="items-grid" id="shoesGrid">
+                <button class="item-btn" style="background: linear-gradient(45deg, #2d3436, #636e72);" data-type="shoes" data-item="0">Heels</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #a0522d, #8b4513);" data-type="shoes" data-item="1">Boots</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #fff, #ddd);" data-type="shoes" data-item="2">Sneakers</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #ff7675, #fd79a8);" data-type="shoes" data-item="3">Flats</button>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header" data-category="accessories">
+                <span class="category-title">👑 Accessories</span>
+                <span class="category-toggle">▼</span>
+            </div>
+            <div class="items-grid" id="accessoriesGrid">
+                <button class="item-btn" style="background: linear-gradient(45deg, #fa709a, #fee140);" data-type="accessory" data-item="0">Crown</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #a8edea, #fed6e3);" data-type="accessory" data-item="1">Beret</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #d299c2, #fef9d7);" data-type="accessory" data-item="2">Headband</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #89f7fe, #66a6ff);" data-type="accessory" data-item="3">Hair Bow</button>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-header" data-category="jewelry">
+                <span class="category-title">💎 Jewelry</span>
+                <span class="category-toggle">▼</span>
+            </div>
+            <div class="items-grid" id="jewelryGrid">
+                <button class="item-btn" style="background: linear-gradient(45deg, #ffd700, #ffed4e);" data-type="jewelry" data-item="0">Gold Necklace</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #c0c0c0, #e8e8e8);" data-type="jewelry" data-item="1">Silver Chain</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #ff6b6b, #feca57);" data-type="jewelry" data-item="2">Pearl Necklace</button>
+                <button class="item-btn" style="background: linear-gradient(45deg, #48dbfb, #0abde3);" data-type="jewelry" data-item="3">Diamond Choker</button>
+            </div>
+        </div>
+
+        <div class="action-panel">
+            <button class="action-btn clear-btn" id="clearAll">🗑️ Clear</button>
+            <button class="action-btn random-btn" id="randomOutfit">🎲 Random</button>
+            <button class="action-btn save-btn" id="saveOutfit">📸 Save Look</button>
+            <button class="action-btn challenge-btn" id="challengeMode">🏆 Challenge</button>
+        </div>
+    </div>
+
+    <div class="challenge-modal" id="challengeModal">
+        <div class="modal-content">
+            <h3 class="challenge-title" id="challengeTitle">Style Challenge!</h3>
+            <p class="challenge-description" id="challengeDescription">Create an outfit with the theme: Elegant Evening</p>
+            <div class="action-panel">
+                <button class="action-btn random-btn" id="acceptChallenge">Accept</button>
+                <button class="action-btn clear-btn" id="declineChallenge">Decline</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class UltimateFashionGame {
+            constructor() {
+                this.score = 0;
+                this.level = 1;
+                this.combos = 0;
+                this.comboMultiplier = 1;
+                this.weatherMultiplier = 1;
+                this.soundEnabled = true;
+                this.currentOutfit = {
+                    top: null,
+                    bottom: null,
+                    shoes: null,
+                    accessory: null,
+                    jewelry: null
+                };
+                
+                this.challenges = [
+                    { theme: "Elegant Evening", description: "Create a sophisticated look for a fancy dinner", reward: 100 },
+                    { theme: "Casual Chic", description: "Mix comfort with style for a day out", reward: 75 },
+                    { theme: "Beach Vibes", description: "Perfect outfit for a sunny beach day", reward: 80 },
+                    { theme: "Office Professional", description: "Look sharp for an important meeting", reward: 90 },
+                    { theme: "Date Night", description: "Romantic and stylish for a special evening", reward: 120 },
+                    { theme: "Weekend Relaxed", description: "Comfortable yet put-together weekend look", reward: 70 }
+                ];
+                
+                this.currentChallenge = null;
+                this.faces = ['😊', '😍', '🥰', '😎', '🤩', '💖'];
+                this.selectedItems = new Set();
+                
+                this.init();
+                this.createParticles();
+                this.startLevelProgression();
+            }
+
+            init() {
+                this.bindEvents();
+                this.updateStats();
+                this.setupCategoryToggles();
+            }
+
+            bindEvents() {
+                // Clothing selection
+                document.querySelectorAll('[data-type]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const type = e.target.dataset.type;
+                        const item = parseInt(e.target.dataset.item);
+                        this.selectClothing(type, item, e.target);
+                    });
+                });
+
+                // Action buttons
+                document.getElementById('clearAll').addEventListener('click', () => this.clearAll());
+                document.getElementById('randomOutfit').addEventListener('click', () => this.randomOutfit());
+                document.getElementById('saveOutfit').addEventListener('click', () => this.saveOutfit());
+                document.getElementById('challengeMode').addEventListener('click', () => this.showChallenge());
+                document.getElementById('soundToggle').addEventListener('click', () => this.toggleSound());
+                document.getElementById('themeToggle').addEventListener('click', () => this.cycleTheme());
+                
+                // Challenge modal
+                document.getElementById('acceptChallenge').addEventListener('click', () => this.acceptChallenge());
+                document.getElementById('declineChallenge').addEventListener('click', () => this.hideChallenge());
+                document.getElementById('challengeModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'challengeModal') this.hideChallenge();
+                });
+            }
+
+            setupCategoryToggles() {
+                document.querySelectorAll('.category-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const category = header.dataset.category;
+                        const grid = header.nextElementSibling;
+                        const toggle = header.querySelector('.category-toggle');
+                        
+                        grid.classList.toggle('collapsed');
+                        toggle.classList.toggle('collapsed');
+                        this.playSound('toggle');
+                    });
+                });
+            }
+
+            selectClothing(type, item, buttonElement) {
+                // Remove previous selection styling
+                document.querySelectorAll(`[data-type="${type}"]`).forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                
+                // Add selection styling
+                buttonElement.classList.add('selected');
+                
+                const oldItem = this.currentOutfit[type];
+                this.currentOutfit[type] = item;
+                
+                const layer = document.getElementById(`${type}Layer`);
+                const style = buttonElement.getAttribute('style');
+                
+                // Add vibration feedback for mobile
+                if (navigator.vibrate && /Mobi|Android/i.test(navigator.userAgent)) {
+                    navigator.vibrate(50);
+                }
+                
+                // Check for perfect outfit combinations
+                this.checkPerfectOutfit();
+                
+                // Animate clothing change with physics
+                layer.style.opacity = '0';
+                layer.style.transform = 'scale(0.8) rotate(5deg)';
+                
+                setTimeout(() => {
+                    layer.style.cssText = style;
+                    layer.classList.add('active');
+                    layer.style.opacity = '1';
+                    layer.style.transform = 'scale(1) rotate(0deg)';
+                    
+                    // Add cloth physics simulation
+                    this.simulateClothPhysics(layer);
+                }, 200);
+                
+                // Check for combos
+                if (oldItem !== null && oldItem !== item) {
+                    this.comboMultiplier = Math.min(this.comboMultiplier + 0.5, 5);
+                    this.showComboIndicator();
+                }
+                
+                this.addScore(15 * this.comboMultiplier * this.weatherMultiplier);
+                this.playSound('select');
+                this.updateModelExpression();
+                this.createStyleEffect();
+                this.checkLevelUp();
+            }
+
+            clearAll() {
+                Object.keys(this.currentOutfit).forEach(type => {
+                    this.currentOutfit[type] = null;
+                    const layer = document.getElementById(`${type}Layer`);
+                    layer.classList.remove('active');
+                    layer.style.opacity = '0';
+                    layer.style.transform = 'scale(0.8)';
+                });
+                
+                // Clear all selected buttons
+                document.querySelectorAll('.item-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                
+                this.resetCombo();
+                this.playSound('clear');
+                this.updateModelExpression('😐');
+            }
+
+            randomOutfit() {
+                this.clearAll();
+                
+                setTimeout(() => {
+                    const categories = ['top', 'bottom', 'shoes', 'accessory', 'jewelry'];
+                    categories.forEach((category, index) => {
+                        setTimeout(() => {
+                            const buttons = document.querySelectorAll(`[data-type="${category}"]`);
+                            const randomBtn = buttons[Math.floor(Math.random() * buttons.length)];
+                            const item = parseInt(randomBtn.dataset.item);
+                            this.selectClothing(category, item, randomBtn);
+                            
+                            // Add rainbow effect during random generation
+                            if (index === categories.length - 1) {
+                                this.createRainbowEffect();
+                            }
+                        }, index * 300);
+                    });
+                }, 500);
+                
+                this.addScore(50 * this.weatherMultiplier);
+                this.playSound('random');
+                setTimeout(() => this.updateModelExpression('🤩'), 1500);
+            }
+
+            createRainbowEffect() {
+                const model = document.getElementById('model');
+                const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#a8e6cf'];
+                
+                let colorIndex = 0;
+                const interval = setInterval(() => {
+                    model.style.filter = `hue-rotate(${colorIndex * 30}deg) saturate(1.5)`;
+                    colorIndex++;
+                    
+                    if (colorIndex > 12) {
+                        clearInterval(interval);
+                        model.style.filter = '';
+                    }
+                }, 200);
+            }
+
+            saveOutfit() {
+                const outfitItems = Object.values(this.currentOutfit).filter(item => item !== null);
+                if (outfitItems.length === 0) {
+                    this.playSound('error');
+                    this.updateModelExpression('😕');
+                    return;
+                }
+                
+                const completionBonus = outfitItems.length === 5 ? 100 : 0;
+                const trendBonus = this.currentTrend ? 50 : 0;
+                const stylePoints = 75 + completionBonus + trendBonus + (this.comboMultiplier * 25);
+                
+                this.addScore(stylePoints * this.weatherMultiplier);
+                this.combos++;
+                
+                // Create photo flash effect
+                this.createPhotoFlash();
+                
+                if (this.currentChallenge && this.isOutfitSuitable()) {
+                    this.addScore(this.currentChallenge.reward * this.weatherMultiplier);
+                    this.currentChallenge = null;
+                    this.hideChallenge();
+                    this.showChallengeSuccess();
+                }
+                
+                this.playSound('save');
+                this.updateModelExpression('💖');
+                this.createSaveEffect();
+                this.updateStats();
+                
+                // Check for fashion magazine feature
+                if (this.combos % 10 === 0) {
+                    this.unlockAchievement('Magazine Feature');
+                    this.showMagazineEffect();
+                }
+            }
+
+            createPhotoFlash() {
+                const flash = document.createElement('div');
+                flash.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    background: white;
+                    z-index: 9999;
+                    pointer-events: none;
+                    animation: photoFlash 0.3s ease-out;
+                `;
+                
+                document.body.appendChild(flash);
+                
+                if (!document.querySelector('#photoFlashAnim')) {
+                    const style = document.createElement('style');
+                    style.id = 'photoFlashAnim';
+                    style.textContent = `
+                        @keyframes photoFlash {
+                            0% { opacity: 0; }
+                            50% { opacity: 0.8; }
+                            100% { opacity: 0; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                setTimeout(() => flash.remove(), 300);
+            }
+
+            showMagazineEffect() {
+                const magazine = document.createElement('div');
+                magazine.innerHTML = `
+                    <div style="
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: linear-gradient(45deg, #ff6b9d, #c44569);
+                        color: white;
+                        padding: 30px;
+                        border-radius: 20px;
+                        text-align: center;
+                        font-size: 1.5em;
+                        font-weight: bold;
+                        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+                        z-index: 3000;
+                        animation: magazineAppear 3s ease-out forwards;
+                    ">
+                        📸 VOGUE FEATURE! 📸<br>
+                        <div style="font-size: 0.8em; margin-top: 10px;">
+                            Your style caught the editor's eye!<br>
+                            Bonus: 500 Style Points!
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(magazine);
+                this.addScore(500);
+                
+                if (!document.querySelector('#magazineAnim')) {
+                    const style = document.createElement('style');
+                    style.id = 'magazineAnim';
+                    style.textContent = `
+                        @keyframes magazineAppear {
+                            0% { 
+                                opacity: 0; 
+                                transform: translate(-50%, -50%) scale(0.5); 
+                            }
+                            50% { 
+                                opacity: 1; 
+                                transform: translate(-50%, -50%) scale(1.05); 
+                            }
+                            100% { 
+                                opacity: 0; 
+                                transform: translate(-50%, -50%) scale(0.8); 
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                setTimeout(() => magazine.remove(), 3000);
+            }
+
+            showChallenge() {
+                this.currentChallenge = this.challenges[Math.floor(Math.random() * this.challenges.length)];
+                document.getElementById('challengeTitle').textContent = this.currentChallenge.theme;
+                document.getElementById('challengeDescription').textContent = `${this.currentChallenge.description} (Reward: ${this.currentChallenge.reward} points)`;
+                document.getElementById('challengeModal').classList.add('active');
+                this.playSound('challenge');
+            }
+
+            hideChallenge() {
+                document.getElementById('challengeModal').classList.remove('active');
+                this.currentChallenge = null;
+            }
+
+            acceptChallenge() {
+                this.hideChallenge();
+                this.clearAll();
+                this.playSound('accept');
+            }
+
+            isOutfitSuitable() {
+                // Simple logic to check if outfit matches challenge theme
+                const itemCount = Object.values(this.currentOutfit).filter(item => item !== null).length;
+                return itemCount >= 3; // Basic completion requirement
+            }
+
+            addScore(points) {
+                this.score += Math.floor(points);
+                this.updateStats();
+                this.showScoreEffect(points);
+            }
+
+            checkPerfectOutfit() {
+                const outfitItems = Object.values(this.currentOutfit).filter(item => item !== null);
+                if (outfitItems.length === 5) {
+                    this.perfectOutfits++;
+                    this.addScore(200);
+                    this.showPerfectOutfitEffect();
+                    this.unlockAchievement('Perfect Stylist');
+                }
+            }
+
+            simulateClothPhysics(element) {
+                // Add subtle cloth movement animation
+                let keyframes = `
+                    @keyframes clothSway {
+                        0%, 100% { transform: scale(1) rotate(0deg); }
+                        25% { transform: scale(1.01) rotate(0.5deg); }
+                        75% { transform: scale(0.99) rotate(-0.5deg); }
+                    }
+                `;
+                
+                if (!document.querySelector('#clothPhysics')) {
+                    const style = document.createElement('style');
+                    style.id = 'clothPhysics';
+                    style.textContent = keyframes;
+                    document.head.appendChild(style);
+                }
+                
+                element.style.animation = 'clothSway 3s ease-in-out infinite';
+                setTimeout(() => {
+                    element.style.animation = '';
+                }, 6000);
+            }
+
+            showPerfectOutfitEffect() {
+                const runway = document.querySelector('.runway');
+                
+                // Create golden sparkle effect
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(() => {
+                        const sparkle = document.createElement('div');
+                        sparkle.innerHTML = '⭐';
+                        sparkle.style.cssText = `
+                            position: absolute;
+                            font-size: ${Math.random() * 20 + 15}px;
+                            left: ${Math.random() * 100}%;
+                            top: ${Math.random() * 100}%;
+                            pointer-events: none;
+                            animation: perfectSparkle 2s ease-out forwards;
+                            z-index: 1000;
+                        `;
+                        runway.appendChild(sparkle);
+                        
+                        setTimeout(() => sparkle.remove(), 2000);
+                    }, i * 100);
+                }
+                
+                // Add perfect outfit animation keyframes
+                if (!document.querySelector('#perfectOutfitAnim')) {
+                    const style = document.createElement('style');
+                    style.id = 'perfectOutfitAnim';
+                    style.textContent = `
+                        @keyframes perfectSparkle {
+                            0% { 
+                                opacity: 0; 
+                                transform: scale(0) rotate(0deg); 
+                            }
+                            50% { 
+                                opacity: 1; 
+                                transform: scale(1) rotate(180deg); 
+                            }
+                            100% { 
+                                opacity: 0; 
+                                transform: scale(0) rotate(360deg); 
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+
+            checkLevelUp() {
+                const newLevel = Math.floor(this.score / 500) + 1;
+                if (newLevel > this.level) {
+                    this.level = newLevel;
+                    this.playSound('levelup');
+                    this.showLevelUpEffect();
+                    this.updateStats();
+                    
+                    // Unlock new fashion trends at certain levels
+                    if (this.level % 3 === 0) {
+                        this.unlockNewTrend();
+                    }
+                    
+                    // Achievement checks
+                    if (this.level === 5) this.unlockAchievement('Fashion Novice');
+                    if (this.level === 10) this.unlockAchievement('Style Expert');
+                    if (this.level === 20) this.unlockAchievement('Fashion Guru');
+                }
+            }
+
+            unlockNewTrend() {
+                const availableTrends = this.fashionTrends.filter(trend => trend !== this.currentTrend);
+                this.currentTrend = availableTrends[Math.floor(Math.random() * availableTrends.length)];
+                
+                this.showTrendNotification();
+            }
+
+            showTrendNotification() {
+                const notification = document.createElement('div');
+                notification.innerHTML = `
+                    <div style="
+                        position: fixed;
+                        top: 150px;
+                        right: 20px;
+                        background: linear-gradient(45deg, #667eea, #764ba2);
+                        color: white;
+                        padding: 15px 20px;
+                        border-radius: 15px;
+                        font-weight: bold;
+                        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                        z-index: 2000;
+                        animation: trendSlide 4s ease-out forwards;
+                    ">
+                        🔥 New Trend Unlocked!<br>
+                        <small>${this.currentTrend} Style</small>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                if (!document.querySelector('#trendAnim')) {
+                    const style = document.createElement('style');
+                    style.id = 'trendAnim';
+                    style.textContent = `
+                        @keyframes trendSlide {
+                            0% { 
+                                transform: translateX(100%); 
+                                opacity: 0; 
+                            }
+                            15%, 85% { 
+                                transform: translateX(0); 
+                                opacity: 1; 
+                            }
+                            100% { 
+                                transform: translateX(100%); 
+                                opacity: 0; 
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                setTimeout(() => notification.remove(), 4000);
+            }
+
+            showAchievementNotification(achievement) {
+                const notification = document.createElement('div');
+                notification.innerHTML = `
+                    <div style="
+                        position: fixed;
+                        top: 80px;
+                        right: 20px;
+                        background: linear-gradient(45deg, #ffd700, #ffed4e);
+                        color: #333;
+                        padding: 15px 20px;
+                        border-radius: 15px;
+                        font-weight: bold;
+                        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                        z-index: 2000;
+                        animation: achievementSlide 3s ease-out forwards;
+                    ">
+                        🏆 Achievement Unlocked!<br>
+                        <small>${achievement}</small>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Add achievement animation
+                if (!document.querySelector('#achievementAnim')) {
+                    const style = document.createElement('style');
+                    style.id = 'achievementAnim';
+                    style.textContent = `
+                        @keyframes achievementSlide {
+                            0% { 
+                                transform: translateX(100%); 
+                                opacity: 0; 
+                            }
+                            15%, 85% { 
+                                transform: translateX(0); 
+                                opacity: 1; 
+                            }
+                            100% { 
+                                transform: translateX(100%); 
+                                opacity: 0; 
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                setTimeout(() => notification.remove(), 3000);
+            }
+
+            resetCombo() {
+                this.comboMultiplier = 1;
+                document.getElementById('comboIndicator').classList.remove('show');
+            }
+
+            showComboIndicator() {
+                const indicator = document.getElementById('comboIndicator');
+                indicator.textContent = `COMBO x${this.comboMultiplier.toFixed(1)}!`;
+                indicator.classList.add('show');
+                
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 2000);
+            }
+
+            updateStats() {
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('level').textContent = this.level;
+                document.getElementById('combos').textContent = this.combos;
+            }
+
+            updateModelExpression(face = null) {
+                const modelFace = document.getElementById('modelFace');
+                if (face) {
+                    modelFace.textContent = face;
+                } else {
+                    modelFace.textContent = this.faces[Math.floor(Math.random() * this.faces.length)];
+                }
+                
+                // Add pose change animation
+                const model = document.getElementById('model');
+                model.classList.add('pose-change');
+                setTimeout(() => {
+                    model.classList.remove('pose-change');
+                }, 600);
+            }
+
+            createStyleEffect() {
+                const runway = document.querySelector('.runway');
+                const colors = ['#ff6b9d', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                runway.style.boxShadow = `0 0 40px ${randomColor}40`;
+                setTimeout(() => {
+                    runway.style.boxShadow = '0 16px 64px rgba(0, 0, 0, 0.2)';
+                }, 800);
+            }
+
+            createSaveEffect() {
+                const runway = document.querySelector('.runway');
+                runway.style.transform = 'scale(1.02)';
+                runway.style.boxShadow = '0 0 50px rgba(255, 215, 0, 0.8)';
+                
+                setTimeout(() => {
+                    runway.style.transform = 'scale(1)';
+                    runway.style.boxShadow = '0 16px 64px rgba(0, 0, 0, 0.2)';
+                }, 1000);
+            }
+
+            showScoreEffect(points) {
+                const scoreElement = document.getElementById('score');
+                scoreElement.style.transform = 'scale(1.3)';
+                scoreElement.style.color = '#ffd700';
+                
+                // Create floating score indicator
+                const floatingScore = document.createElement('div');
+                floatingScore.textContent = `+${Math.floor(points)}`;
+                floatingScore.style.cssText = `
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                    color: #ffd700;
+                    font-weight: bold;
+                    font-size: 1.2em;
+                    pointer-events: none;
+                    animation: floateUp 2s ease-out forwards;
+                    z-index: 1000;
+                `;
+                
+                document.querySelector('.runway').appendChild(floatingScore);
+                
+                setTimeout(() => {
+                    scoreElement.style.transform = 'scale(1)';
+                    scoreElement.style.color = 'white';
+                    floatingScore.remove();
+                }, 2000);
+            }
+
+            showLevelUpEffect() {
+                const levelElement = document.getElementById('level');
+                levelElement.style.transform = 'scale(1.5)';
+                levelElement.style.color = '#ff6b9d';
+                
+                setTimeout(() => {
+                    levelElement.style.transform = 'scale(1)';
+                    levelElement.style.color = 'white';
+                }, 1000);
+            }
+
+            showChallengeSuccess() {
+                this.updateModelExpression('🏆');
+                const runway = document.querySelector('.runway');
+                runway.style.background = 'linear-gradient(45deg, #ffd700, #ffed4e)';
+                
+                setTimeout(() => {
+                    runway.style.background = 'rgba(255, 255, 255, 0.95)';
+                }, 2000);
+            }
+
+            playSound(type) {
+                if (!this.soundEnabled) return;
+
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    const sounds = {
+                        select: { freq: 880, duration: 0.15, type: 'sine' },
+                        clear: { freq: 440, duration: 0.25, type: 'triangle' },
+                        random: { freq: 660, duration: 0.4, type: 'square' },
+                        save: { freq: 1320, duration: 0.5, type: 'sine' },
+                        challenge: { freq: 1100, duration: 0.6, type: 'sawtooth' },
+                        levelup: { freq: 1760, duration: 0.8, type: 'sine' },
+                        accept: { freq: 990, duration: 0.3, type: 'sine' },
+                        toggle: { freq: 550, duration: 0.1, type: 'square' },
+                        error: { freq: 220, duration: 0.4, type: 'sawtooth' }
+                    };
+
+                    const sound = sounds[type] || sounds.select;
+                    
+                    oscillator.frequency.setValueAtTime(sound.freq, audioContext.currentTime);
+                    oscillator.type = sound.type;
+                    
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.duration);
+
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + sound.duration);
+                } catch (error) {
+                    console.log('Audio not supported');
+                }
+            }
+
+            toggleSound() {
+                this.soundEnabled = !this.soundEnabled;
+                document.getElementById('soundToggle').textContent = this.soundEnabled ? '🔊' : '🔇';
+                this.playSound('toggle');
+            }
+
+            cycleTheme() {
+                const themes = [
+                    'linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%)',
+                    'linear-gradient(135deg, #ff9a9e 0%, #fecfef 25%, #fecfef 50%, #f093fb 75%, #f5576c 100%)',
+                    'linear-gradient(135deg, #a8edea 0%, #fed6e3 25%, #d299c2 50%, #fef9d7 75%, #89f7fe 100%)',
+                    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                ];
+                
+                const currentBg = document.body.style.background;
+                const currentIndex = themes.findIndex(theme => currentBg.includes(theme.split(' ')[1]));
+                const nextIndex = (currentIndex + 1) % themes.length;
+                
+                document.body.style.background = themes[nextIndex];
+                document.body.style.backgroundSize = '400% 400%';
+                document.body.style.animation = 'gradientShift 8s ease infinite';
+                
+                this.playSound('toggle');
+            }
+
+            createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                
+                setInterval(() => {
+                    if (particlesContainer.children.length < 20) {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.style.left = Math.random() * 100 + '%';
+                        particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                        particle.style.animationDelay = Math.random() * 2 + 's';
+                        
+                        particlesContainer.appendChild(particle);
+                        
+                        setTimeout(() => {
+                            if (particle.parentNode) {
+                                particle.remove();
+                            }
+                        }, 8000);
+                    }
+                }, 300);
+            }
+
+            startLevelProgression() {
+                // Enhanced passive progression system
+                setInterval(() => {
+                    if (Math.random() < 0.15 && this.score > 0) {
+                        this.addScore(8); // Increased passive score gain
+                        
+                        // Random fashion tips
+                        if (Math.random() < 0.1) {
+                            this.showFashionTip();
+                        }
+                    }
+                }, 4000);
+                
+                // Weather-based bonus system
+                setInterval(() => {
+                    if (Math.random() < 0.05) {
+                        this.triggerWeatherBonus();
+                    }
+                }, 15000);
+            }
+
+            showFashionTip() {
+                const tips = [
+                    "💡 Mix textures for visual interest!",
+                    "🌈 Color coordination boosts your score!",
+                    "✨ Accessories complete the look!",
+                    "👗 Layer different pieces for style points!",
+                    "💎 Jewelry adds that perfect finishing touch!",
+                    "👠 The right shoes can transform an outfit!",
+                    "🎨 Don't be afraid to experiment with colors!",
+                    "⭐ Perfect outfits give massive bonus points!"
+                ];
+                
+                const tip = tips[Math.floor(Math.random() * tips.length)];
+                const tipElement = document.createElement('div');
+                tipElement.innerHTML = `
+                    <div style="
+                        position: fixed;
+                        bottom: 20px;
+                        left: 20px;
+                        right: 20px;
+                        background: rgba(0,0,0,0.8);
+                        color: white;
+                        padding: 15px;
+                        border-radius: 15px;
+                        text-align: center;
+                        z-index: 1500;
+                        animation: tipFade 4s ease-out forwards;
+                        backdrop-filter: blur(10px);
+                    ">
+                        ${tip}
+                    </div>
+                `;
+                
+                document.body.appendChild(tipElement);
+                
+                if (!document.querySelector('#tipFadeAnim')) {
+                    const style = document.createElement('style');
+                    style.id = 'tipFadeAnim';
+                    style.textContent = `
+                        @keyframes tipFade {
+                            0% { opacity: 0; transform: translateY(20px); }
+                            15%, 85% { opacity: 1; transform: translateY(0); }
+                            100% { opacity: 0; transform: translateY(-20px); }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                setTimeout(() => tipElement.remove(), 4000);
+            }
+
+            triggerWeatherBonus() {
+                const weatherEvents = [
+                    { name: "☀️ Sunny Day Bonus", multiplier: 1.5, duration: 10000 },
+                    { name: "🌙 Moonlight Elegance", multiplier: 2.0, duration: 8000 },
+                    { name: "🌸 Spring Fashion Week", multiplier: 1.8, duration: 12000 },
+                    { name: "❄️ Winter Wonderland", multiplier: 1.6, duration: 9000 }
+                ];
+                
+                const event = weatherEvents[Math.floor(Math.random() * weatherEvents.length)];
+                this.weatherMultiplier = event.multiplier;
+                
+                this.showWeatherNotification(event);
+                
+                setTimeout(() => {
+                    this.weatherMultiplier = 1;
+                }, event.duration);
+            }
+
+            showWeatherNotification(event) {
+                const notification = document.createElement('div');
+                notification.innerHTML = `
+                    <div style="
+                        position: fixed;
+                        top: 220px;
+                        right: 20px;
+                        background: linear-gradient(45deg, #4facfe, #00f2fe);
+                        color: white;
+                        padding: 15px 20px;
+                        border-radius: 15px;
+                        font-weight: bold;
+                        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                        z-index: 2000;
+                        animation: weatherSlide 6s ease-out forwards;
+                    ">
+                        ${event.name}<br>
+                        <small>${event.multiplier}x Score Multiplier!</small>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                if (!document.querySelector('#weatherAnim')) {
+                    const style = document.createElement('style');
+                    style.id = 'weatherAnim';
+                    style.textContent = `
+                        @keyframes weatherSlide {
+                            0% { 
+                                transform: translateX(100%); 
+                                opacity: 0; 
+                            }
+                            15%, 85% { 
+                                transform: translateX(0); 
+                                opacity: 1; 
+                            }
+                            100% { 
+                                transform: translateX(100%); 
+                                opacity: 0; 
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                setTimeout(() => notification.remove(), 6000);
+            }
+        }
+
+        // Add floating animation keyframes
+        const floatUpAnimation = `
+            @keyframes floateUp {
+                0% { 
+                    opacity: 1; 
+                    transform: translateY(0); 
+                }
+                100% { 
+                    opacity: 0; 
+                    transform: translateY(-50px) scale(1.2); 
+                }
+            }
+        `;
+        
+        const style = document.createElement('style');
+        style.textContent = floatUpAnimation;
+        document.head.appendChild(style);
+
+        // Initialize the game when page loads
+        window.addEventListener('load', () => {
+            new UltimateFashionGame();
+        });
+    </script>
+</body>
+</html>
