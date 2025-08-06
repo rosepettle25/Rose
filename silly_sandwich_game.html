@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Silly Sandwich Stack</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #gameContainer {
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            position: relative;
+            background: #87ceeb;
+            border: 3px solid #2c3e50;
+            overflow: hidden;
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: linear-gradient(to bottom, #87ceeb, #98fb98);
+        }
+
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .score {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            border: 2px solid #2c3e50;
+        }
+
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            z-index: 20;
+        }
+
+        #gameTitle {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0px #ff6b6b;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .button {
+            background: #ff6b6b;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            border: 3px solid white;
+            transition: all 0.3s;
+        }
+
+        .button:hover {
+            background: #ff5252;
+            transform: scale(1.05);
+        }
+
+        #instructions {
+            font-size: 1.1em;
+            margin: 20px;
+            line-height: 1.5;
+        }
+
+        #gameOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            z-index: 30;
+        }
+
+        .emoji {
+            font-size: 2em;
+            animation: spin 2s infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="ui">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="score">Lives: <span id="lives">❤️❤️❤️</span></div>
+        </div>
+        
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="startScreen">
+            <h1 id="gameTitle">🥪 Silly Sandwich Stack 🥪</h1>
+            <div id="instructions">
+                Catch the yummy ingredients to build your sandwich!<br>
+                Avoid the gross stuff like socks and bugs!<br><br>
+                <strong>Tap left/right to move</strong><br>
+                Build the tallest, silliest sandwich ever!
+            </div>
+            <button class="button" onclick="startGame()">Start Cooking! 🍳</button>
+        </div>
+
+        <div id="gameOverScreen">
+            <h2>Game Over!</h2>
+            <div class="emoji">🤢</div>
+            <p id="finalScore"></p>
+            <p id="sandwichComment"></p>
+            <button class="button" onclick="restartGame()">Try Again! 🔄</button>
+        </div>
+
+        <div class="controls">
+            Tap left/right sides to move
+        </div>
+    </div>
+
+    <script>
+        // Get elements
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('gameContainer');
+        
+        // Game state
+        let game = {
+            running: false,
+            score: 0,
+            lives: 3,
+            player: {
+                x: 170,
+                y: 500,
+                width: 60,
+                height: 40,
+                speed: 6
+            },
+            items: [],
+            particles: []
+        };
+        
+        // Input state
+        let input = {
+            left: false,
+            right: false
+        };
+
+        // Initialize canvas
+        function setupCanvas() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            game.player.x = canvas.width / 2 - game.player.width / 2;
+            game.player.y = canvas.height - 100;
+        }
+        
+        // Sound system
+        let audioCtx = null;
+        
+        function initSound() {
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch(e) {
+                console.log('No audio support');
+            }
+        }
+        
+        function beep(freq, duration) {
+            if (!audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        // Game items
+        const goodStuff = [
+            '🍖', '🥬', '🍅', '🧀', '🥓', '🍄', '🥒', '🍞'
+        ];
+        
+        const badStuff = [
+            '🧦', '🐛', '🗑️', '💩', '🦶', '👟'
+        ];
+
+        // Touch/mouse handling
+        function handleStart(x) {
+            if (x < canvas.width / 2) {
+                input.left = true;
+            } else {
+                input.right = true;
+            }
+        }
+        
+        function handleEnd() {
+            input.left = false;
+            input.right = false;
+        }
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const x = e.touches[0].clientX - rect.left;
+            handleStart(x);
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            handleEnd();
+        });
+
+        canvas.addEventListener('touchcancel', (e) => {
+            e.preventDefault();
+            handleEnd();
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            handleStart(x);
+        });
+
+        canvas.addEventListener('mouseup', handleEnd);
+        canvas.addEventListener('mouseleave', handleEnd);
+        
+        // Global touch end handler to catch touches outside canvas
+        document.addEventListener('touchend', handleEnd);
+        document.addEventListener('touchcancel', handleEnd);
+
+        // Game logic
+        function spawnItem() {
+            const isGood = Math.random() > 0.25;
+            const emoji = isGood ? 
+                goodStuff[Math.floor(Math.random() * goodStuff.length)] :
+                badStuff[Math.floor(Math.random() * badStuff.length)];
+            
+            game.items.push({
+                x: Math.random() * (canvas.width - 40),
+                y: -40,
+                width: 40,
+                height: 40,
+                speed: 2 + Math.random() * 2,
+                emoji: emoji,
+                points: isGood ? 10 : -20,
+                good: isGood,
+                spin: 0
+            });
+        }
+
+        function updateGame() {
+            if (!game.running) return;
+
+            // Move player
+            if (input.left && game.player.x > 0) {
+                game.player.x -= game.player.speed;
+            }
+            if (input.right && game.player.x < canvas.width - game.player.width) {
+                game.player.x += game.player.speed;
+            }
+
+            // Update items
+            for (let i = game.items.length - 1; i >= 0; i--) {
+                const item = game.items[i];
+                item.y += item.speed;
+                item.spin += 0.1;
+
+                // Check collision
+                if (item.y + item.height > game.player.y &&
+                    item.y < game.player.y + game.player.height &&
+                    item.x + item.width > game.player.x &&
+                    item.x < game.player.x + game.player.width) {
+                    
+                    game.score += item.points;
+                    
+                    if (item.good) {
+                        beep(523, 0.1);
+                    } else {
+                        beep(200, 0.3);
+                        game.lives--;
+                        if (game.lives <= 0) {
+                            endGame();
+                            return;
+                        }
+                    }
+                    
+                    // Add particles
+                    for (let j = 0; j < 3; j++) {
+                        game.particles.push({
+                            x: item.x + 20,
+                            y: item.y + 20,
+                            vx: (Math.random() - 0.5) * 6,
+                            vy: -Math.random() * 5,
+                            life: 20
+                        });
+                    }
+                    
+                    game.items.splice(i, 1);
+                    updateUI();
+                    continue;
+                }
+
+                // Remove if off screen
+                if (item.y > canvas.height) {
+                    game.items.splice(i, 1);
+                }
+            }
+
+            // Update particles
+            for (let i = game.particles.length - 1; i >= 0; i--) {
+                const p = game.particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2;
+                p.life--;
+                if (p.life <= 0) {
+                    game.particles.splice(i, 1);
+                }
+            }
+
+            // Spawn items
+            if (Math.random() < 0.02) {
+                spawnItem();
+            }
+        }
+
+        function draw() {
+            if (!game.running) return;
+
+            // Clear
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            ctx.font = `${game.player.width}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.fillText('🍞', game.player.x + game.player.width/2, game.player.y + game.player.height);
+
+            // Draw items
+            game.items.forEach(item => {
+                ctx.save();
+                ctx.translate(item.x + 20, item.y + 20);
+                ctx.rotate(item.spin);
+                ctx.font = '40px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.emoji, 0, 15);
+                ctx.restore();
+            });
+
+            // Draw particles
+            ctx.fillStyle = '#FFD700';
+            game.particles.forEach(p => {
+                ctx.globalAlpha = p.life / 20;
+                ctx.fillRect(p.x, p.y, 3, 3);
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        function gameLoop() {
+            updateGame();
+            draw();
+            if (game.running) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = game.score;
+            const hearts = '❤️'.repeat(Math.max(0, game.lives)) + '💔'.repeat(Math.max(0, 3 - game.lives));
+            document.getElementById('lives').textContent = hearts;
+        }
+
+        function startGame() {
+            initSound();
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            setupCanvas();
+            
+            game.running = true;
+            game.score = 0;
+            game.lives = 3;
+            game.items = [];
+            game.particles = [];
+            
+            document.getElementById('startScreen').style.display = 'none';
+            updateUI();
+            gameLoop();
+        }
+
+        function endGame() {
+            game.running = false;
+            beep(147, 0.8);
+            
+            const comments = [
+                "That sandwich was a hot mess! 🤢",
+                "Even raccoons wouldn't eat that! 🦝",
+                "You invented a new disaster! 🎉",
+                "That's not food, that's art... bad art! 🎨",
+                "Your sandwich scared itself! 😱",
+                "Well... you tried! 😅"
+            ];
+            
+            document.getElementById('finalScore').textContent = `Score: ${game.score}`;
+            document.getElementById('sandwichComment').textContent = 
+                comments[Math.floor(Math.random() * comments.length)];
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+
+        function restartGame() {
+            document.getElementById('gameOverScreen').style.display = 'none';
+            startGame();
+        }
+
+        // Initialize on load
+        window.addEventListener('load', setupCanvas);
+        window.addEventListener('resize', () => {
+            if (!game.running) setupCanvas();
+        });
+    </script>
+</body>
+</html>
